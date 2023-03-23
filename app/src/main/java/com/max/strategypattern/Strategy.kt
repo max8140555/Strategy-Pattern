@@ -11,10 +11,14 @@ class PriceByCreditCard: PriceStrategy {
     }
 }
 
-class PayByLinePrice: PriceStrategy {
+class PayByLinePrice(private val isVip: Boolean): PriceStrategy {
     override fun getPrice(price: Int): Int {
-        val newPrice = price - 10
-        println("Will Pay with CreditCard $$price")
+        val newPrice = if (isVip) {
+            price - 20
+        }else {
+            price - 10
+        }
+        println("Will Pay with LinePay $$price")
         return newPrice
     }
 }

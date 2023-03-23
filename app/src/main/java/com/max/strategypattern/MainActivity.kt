@@ -13,12 +13,13 @@ class MainActivity: AppCompatActivity() {
 
         val price = 100
         var newPrice = price
+        val isLineVip = true
 
         // 初始
         binding.radioGroup.setOnCheckedChangeListener { _, checkedId ->
             newPrice = when (checkedId) {
                 R.id.button_credit_card -> getCreditCardPrice(price)
-                R.id.button_line_pay -> getLinePayPrice(price)
+                R.id.button_line_pay -> getLinePayPrice(price, isLineVip)
                 R.id.button_google_pay -> getGooglePayPrice(price)
                 else -> price
             }
@@ -35,7 +36,7 @@ class MainActivity: AppCompatActivity() {
                 R.id.button_google_pay -> PayType.GOOGLE_PAY
                 else -> return@setOnCheckedChangeListener
             }
-            newPrice = selectedPayType(type, price)
+            newPrice = getNewPrice(type, price, isLineVip)
         }
         binding.buttonPay.setOnClickListener {
             pay(newPrice)
@@ -46,7 +47,7 @@ class MainActivity: AppCompatActivity() {
         binding.radioGroup.setOnCheckedChangeListener { _, checkedId ->
             val strategy = when (checkedId) {
                 R.id.button_credit_card -> PriceByCreditCard()
-                R.id.button_line_pay -> PayByLinePrice()
+                R.id.button_line_pay -> PayByLinePrice(true)
                 R.id.button_google_pay -> PayByGooglePrice()
                 else -> return@setOnCheckedChangeListener
             }
@@ -63,10 +64,10 @@ class MainActivity: AppCompatActivity() {
         GOOGLE_PAY
     }
 
-    private fun selectedPayType(payType: PayType, price: Int): Int {
+    private fun getNewPrice(payType: PayType, price: Int, isLineVip: Boolean): Int {
         return when (payType) {
             PayType.CREDIT_CARD -> getCreditCardPrice(price)
-            PayType.LINE_PAY -> getLinePayPrice(price)
+            PayType.LINE_PAY -> getLinePayPrice(price, isLineVip)
             PayType.GOOGLE_PAY -> getGooglePayPrice(price)
         }
     }
@@ -76,8 +77,12 @@ class MainActivity: AppCompatActivity() {
         return price
     }
 
-    private fun getLinePayPrice(price: Int): Int {
-        val newPrice = price - 10
+    private fun getLinePayPrice(price: Int, isVip: Boolean): Int {
+        val newPrice = if (isVip) {
+            price - 20
+        } else {
+            price - 10
+        }
         println("Will Pay with CreditCard $$price")
         return newPrice
     }
